@@ -1,0 +1,6 @@
+Flask==2.3.3
+mysql-connector-python==8.1.0
+psycopg2-binary==2.9.7
+pyodbc==4.0.39
+cx_Oracle==8.3.0
+python-dotenv==1.0.0 

