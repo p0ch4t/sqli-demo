@@ -1,0 +1,34 @@
+-- SQL Server Setup
+
+-- CREATE DATABASE vulnerable_db;
+-- GO
+-- USE vulnerable_db;
+
+CREATE TABLE users (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+INSERT INTO users (username, password, email) VALUES
+('admin', 'admin123', 'admin@example.com'),
+('user1', 'password123', 'user1@example.com'),
+('user2', 'secret456', 'user2@example.com'),
+('test', 'test123', 'test@example.com');
+
+CREATE TABLE products (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    description TEXT,
+    category VARCHAR(50)
+);
+
+INSERT INTO products (name, price, description, category) VALUES
+('Laptop', 999.99, 'High performance laptop', 'Electronics'),
+('Mouse', 29.99, 'Wireless mouse', 'Electronics'),
+('Keyboard', 59.99, 'Mechanical keyboard', 'Electronics'),
+('Monitor', 299.99, '27 inch monitor', 'Electronics');
+
