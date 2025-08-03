@@ -1,4 +1,5 @@
--- MySQL Setup
+-- MySQL Setup - CONFIGURACIÓN VULNERABLE PARA RCE
+-- ⚠️ SOLO PARA FINES EDUCATIVOS - NUNCA EN PRODUCCIÓN ⚠️
 
 CREATE DATABASE IF NOT EXISTS vulnerable_db;
 USE vulnerable_db;
@@ -30,4 +31,3 @@ INSERT INTO products (name, price, description, category) VALUES
 ('Mouse', 29.99, 'Wireless mouse', 'Electronics'),
 ('Keyboard', 59.99, 'Mechanical keyboard', 'Electronics'),
 ('Monitor', 299.99, '27 inch monitor', 'Electronics');
-

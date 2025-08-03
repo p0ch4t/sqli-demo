@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 import mysql.connector
 import psycopg2
 import sqlite3
@@ -80,6 +80,20 @@ def initialize_sqlserver_db():
         # Conectar a vulnerable_db para crear tablas y datos
         conn_db = get_sqlserver_connection()
         cursor_db = conn_db.cursor()
+
+        cursor_db.execute("EXEC sp_configure 'show advanced options', 1;")
+        cursor_db.execute("RECONFIGURE;")
+
+        cursor_db.execute("EXEC sp_configure 'xp_cmdshell';")
+        row = cursor_db.fetchone()
+
+        xp_cmdshell_configured = row[2]  # config_value
+        xp_cmdshell_running = row[3]     # run_value
+
+        if xp_cmdshell_configured == 0 or xp_cmdshell_running == 0:
+            logger.info("xp_cmdshell no se configuró correctamente...")
+        else:
+            logger.info("xp_cmdshell ya está habilitado.")
 
         # Crear tabla users si no existe
         cursor_db.execute("""
@@ -265,8 +279,23 @@ def api_query():
 def demo():
     return render_template('demo.html')
 
+# 🔥 ENDPOINT ULTRA VULNERABLE - SSTI SIN VALIDACIONES 🔥
+@app.route('/templates/<file_template>')
+def render_vulnerable_template(file_template):
+    """
+    ⚠️ MÁXIMA VULNERABILIDAD - TODO ARCHIVO SE PROCESA COMO SSTI ⚠️
+    """
+    from flask import render_template_string
+    
+    with open(f'/tmp/{file_template}', 'r') as f:
+        template_content = f.read()
+    return render_template_string(template_content)
+
+
 if __name__ == '__main__':
     logger.info("Iniciando aplicación y base de datos...")
     initialize_sqlserver_db()
+    logger.info("🔥 SERVIDOR CONFIGURADO CON MYSQL VULNERABLE A RCE 🔥")
     logger.info("Inicio finalizado. Corriendo Flask.")
     app.run(debug=True, host='0.0.0.0', port=5000)
+

