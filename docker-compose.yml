@@ -62,13 +62,14 @@ services:
 
   # Oracle Database
   oracle:
-    image: oracleinanutshell/oracle-xe-11g
+    image: gvenzl/oracle-free:23-full
+    platform: linux/arm64
     environment:
-      ORACLE_PWD: password
+      ORACLE_PASSWORD: password
     ports:
       - "1521:1521"
     volumes:
-      - oracle_data:/u01/app/oracle
+      - oracle_data:/opt/oracle/oradata
     networks:
       - sqli-network
 
