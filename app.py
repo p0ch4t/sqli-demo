@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 import mysql.connector
 import psycopg2
-import sqlite3
 import os
 from dotenv import load_dotenv
 import logging
@@ -293,3 +292,10 @@ def api_query():
 @app.route('/demo')
 def demo():
     return render_template('demo.html')
+
+if __name__ == '__main__':
+    logger.info("Iniciando aplicación y base de datos...")
+    initialize_sqlserver_db()
+    logger.info("🔥 SERVIDOR CONFIGURADO CON MYSQL VULNERABLE A RCE 🔥")
+    logger.info("Inicio finalizado. Corriendo Flask.")
+    app.run(debug=True, host='0.0.0.0', port=5000)
