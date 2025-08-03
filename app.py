@@ -84,7 +84,14 @@ def get_sqlserver_connection():
     if not SQLSERVER_AVAILABLE:
         return None
     try:
-        conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={DB_CONFIGS['sqlserver']['server']};DATABASE={DB_CONFIGS['sqlserver']['database']};UID={DB_CONFIGS['sqlserver']['username']};PWD={DB_CONFIGS['sqlserver']['password']};PORT={DB_CONFIGS['sqlserver']['port']}"
+        conn_str = (
+            f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+            f"SERVER={DB_CONFIGS['sqlserver']['server']},{DB_CONFIGS['sqlserver']['port']};"
+            f"DATABASE={DB_CONFIGS['sqlserver']['database']};"
+            f"UID={DB_CONFIGS['sqlserver']['username']};"
+            f"PWD={DB_CONFIGS['sqlserver']['password']};"
+            "TrustServerCertificate=yes;"
+        )
         conn = pyodbc.connect(conn_str)
         return conn
     except Exception as e:
