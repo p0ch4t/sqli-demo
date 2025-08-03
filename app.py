@@ -61,8 +61,111 @@ DB_CONFIGS = {
     }
 }
 
+def initialize_sqlserver_db():
+    if not SQLSERVER_AVAILABLE:
+        logger.warning("pyodbc no disponible. Saltando inicialización de SQL Server.")
+        return
+    try:
+        logger.info("Conectando a la base master para inicializar vulnerable_db...")
+        # Conexión a master para crear la base si no existe
+        conn_master = pyodbc.connect(
+            f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+            f"SERVER={DB_CONFIGS['sqlserver']['server']},{DB_CONFIGS['sqlserver']['port']};"
+            f"DATABASE=master;"
+            f"UID={DB_CONFIGS['sqlserver']['username']};"
+            f"PWD={DB_CONFIGS['sqlserver']['password']};"
+            "TrustServerCertificate=yes;"
+        )
+        conn_master.autocommit = True
+        cursor_master = conn_master.cursor()
+
+        # Crear DB si no existe
+        cursor_master.execute("""
+            IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'vulnerable_db')
+            BEGIN
+                CREATE DATABASE vulnerable_db;
+                PRINT 'Base vulnerable_db creada';
+            END
+        """)
+        logger.info("Base vulnerable_db creada o ya existente.")
+        cursor_master.close()
+        conn_master.close()
+
+        logger.info("Conectando a vulnerable_db para crear tablas y datos iniciales...")
+        # Conectar a vulnerable_db para crear tablas y datos
+        conn_db = get_sqlserver_connection()
+        cursor_db = conn_db.cursor()
+
+        # Crear tabla users si no existe
+        cursor_db.execute("""
+            IF OBJECT_ID('users', 'U') IS NULL
+            BEGIN
+                CREATE TABLE users (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    username VARCHAR(50) NOT NULL,
+                    password VARCHAR(50) NOT NULL,
+                    email VARCHAR(100) NOT NULL,
+                    created_at DATETIME DEFAULT GETDATE()
+                );
+                PRINT 'Tabla users creada';
+            END
+        """)
+        logger.info("Tabla users creada o ya existente.")
+
+        # Insertar datos si tabla users vacía
+        cursor_db.execute("SELECT COUNT(*) FROM users")
+        count_users = cursor_db.fetchone()[0]
+        if count_users == 0:
+            cursor_db.execute("""
+                INSERT INTO users (username, password, email) VALUES
+                ('admin', 'admin123', 'admin@example.com'),
+                ('user1', 'password123', 'user1@example.com'),
+                ('user2', 'secret456', 'user2@example.com'),
+                ('test', 'test123', 'test@example.com');
+            """)
+            logger.info("Datos iniciales insertados en tabla users.")
+        else:
+            logger.info("Tabla users ya contiene datos, no se insertó nada.")
+
+        # Similar para tabla products...
+        cursor_db.execute("""
+            IF OBJECT_ID('products', 'U') IS NULL
+            BEGIN
+                CREATE TABLE products (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    price DECIMAL(10,2) NOT NULL,
+                    description TEXT,
+                    category VARCHAR(50)
+                );
+                PRINT 'Tabla products creada';
+            END
+        """)
+        logger.info("Tabla products creada o ya existente.")
+
+        cursor_db.execute("SELECT COUNT(*) FROM products")
+        count_products = cursor_db.fetchone()[0]
+        if count_products == 0:
+            cursor_db.execute("""
+                INSERT INTO products (name, price, description, category) VALUES
+                ('Laptop', 999.99, 'High performance laptop', 'Electronics'),
+                ('Mouse', 29.99, 'Wireless mouse', 'Electronics'),
+                ('Keyboard', 59.99, 'Mechanical keyboard', 'Electronics'),
+                ('Monitor', 299.99, '27 inch monitor', 'Electronics');
+            """)
+            logger.info("Datos iniciales insertados en tabla products.")
+        else:
+            logger.info("Tabla products ya contiene datos, no se insertó nada.")
+
+        conn_db.commit()
+        cursor_db.close()
+        conn_db.close()
+
+        logger.info("Inicialización SQL Server finalizada correctamente.")
+    except Exception as e:
+        logger.error(f"Error inicializando SQL Server DB: {e}")
+
 def get_mysql_connection():
-    """Get MySQL connection"""
     try:
         conn = mysql.connector.connect(**DB_CONFIGS['mysql'])
         return conn
@@ -71,7 +174,6 @@ def get_mysql_connection():
         return None
 
 def get_postgresql_connection():
-    """Get PostgreSQL connection"""
     try:
         conn = psycopg2.connect(**DB_CONFIGS['postgresql'])
         return conn
@@ -80,11 +182,10 @@ def get_postgresql_connection():
         return None
 
 def get_sqlserver_connection():
-    """Get SQL Server connection"""
     if not SQLSERVER_AVAILABLE:
         return None
     try:
-        conn_str = (
+        conn_str_db = (
             f"DRIVER={{ODBC Driver 18 for SQL Server}};"
             f"SERVER={DB_CONFIGS['sqlserver']['server']},{DB_CONFIGS['sqlserver']['port']};"
             f"DATABASE={DB_CONFIGS['sqlserver']['database']};"
@@ -92,14 +193,13 @@ def get_sqlserver_connection():
             f"PWD={DB_CONFIGS['sqlserver']['password']};"
             "TrustServerCertificate=yes;"
         )
-        conn = pyodbc.connect(conn_str)
+        conn = pyodbc.connect(conn_str_db, autocommit=True)
         return conn
     except Exception as e:
         logger.error(f"SQL Server connection error: {e}")
         return None
 
 def get_oracle_connection():
-    """Get Oracle connection with oracledb thin mode"""
     if not ORACLE_AVAILABLE:
         return None
     try:
@@ -108,7 +208,6 @@ def get_oracle_connection():
             DB_CONFIGS['oracle']['port'],
             service_name=DB_CONFIGS['oracle']['service_name']
         )
-        # Thin mode por defecto, no requiere cliente nativo
         conn = oracledb.connect(
             user=DB_CONFIGS['oracle']['user'],
             password=DB_CONFIGS['oracle']['password'],
@@ -120,7 +219,6 @@ def get_oracle_connection():
         return None
 
 def execute_query_vulnerable(db_type, query):
-    """Execute query with SQL injection vulnerability"""
     conn = None
     try:
         if db_type == 'mysql':
@@ -131,15 +229,13 @@ def execute_query_vulnerable(db_type, query):
             conn = get_sqlserver_connection()
         elif db_type == 'oracle':
             conn = get_oracle_connection()
-        
+
         if not conn:
             return {"error": f"Could not connect to {db_type}"}
-        
+
         cursor = conn.cursor()
-        
-        # VULNERABLE: Direct string concatenation - SQL Injection vulnerability
         cursor.execute(query)
-        
+
         if query.strip().upper().startswith('SELECT'):
             results = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description] if cursor.description else []
@@ -147,7 +243,7 @@ def execute_query_vulnerable(db_type, query):
         else:
             conn.commit()
             return {"message": "Query executed successfully", "affected_rows": cursor.rowcount}
-            
+
     except Exception as e:
         logger.error(f"Query execution error: {e}")
         return {"error": str(e)}
@@ -167,7 +263,7 @@ def execute_query():
     if not user:
         flash('Please enter a user', 'error')
         return redirect(url_for('index'))
-    
+
     result = execute_query_vulnerable(db_type, query)
     return render_template('index.html', result=result, last_query=query, last_db=db_type)
 
@@ -177,10 +273,10 @@ def api_query():
     db_type = data.get('db_type')
     user = request.form.get('user')
     query = f"SELECT * FROM users WHERE username = '{user}'"
-    
+
     if not user:
         return jsonify({"error": "User is required"}), 400
-    
+
     result = execute_query_vulnerable(db_type, query)
     return jsonify(result)
 
@@ -189,4 +285,7 @@ def demo():
     return render_template('demo.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    logger.info("Iniciando aplicación y base de datos...")
+    initialize_sqlserver_db()
+    logger.info("Inicio finalizado. Corriendo Flask.")
+    app.run(debug=True, host='0.0.0.0', port=5000)
