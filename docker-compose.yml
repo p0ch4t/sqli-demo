@@ -1,13 +1,35 @@
 version: '3.8'
 
 services:
-  # Flask Application
   app:
     build: .
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=development
+      # MySQL
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_PORT=${MYSQL_PORT}
+      # PostgreSQL
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      # SQL Server
+      - SQLSERVER_HOST=${SQLSERVER_HOST}
+      - SQLSERVER_USER=${SQLSERVER_USER}
+      - SQLSERVER_PASSWORD=${SQLSERVER_PASSWORD}
+      - SQLSERVER_DATABASE=${SQLSERVER_DATABASE}
+      - SQLSERVER_PORT=${SQLSERVER_PORT}
+      # Oracle
+      - ORACLE_USER=${ORACLE_USER}
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD}
+      - ORACLE_SERVICE=${ORACLE_SERVICE}
+      - ORACLE_HOST=${ORACLE_HOST}
+      - ORACLE_PORT=${ORACLE_PORT}
     depends_on:
       - mysql
       - postgresql
@@ -18,58 +40,67 @@ services:
     networks:
       - sqli-network
 
-  # MySQL Database
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: vulnerable_db
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PORT: ${MYSQL_PORT}
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database_setup.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql_setup.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - sqli-network
 
-  # PostgreSQL Database
   postgresql:
     image: postgres:13
     environment:
-      POSTGRES_DB: vulnerable_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgresql_data:/var/lib/postgresql/data
+      - ./postgresql_setup.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - sqli-network
 
-  # SQL Server Database
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       ACCEPT_EULA: Y
-      SA_PASSWORD: "Password123!"
+      SA_PASSWORD: ${SQLSERVER_PASSWORD}
       MSSQL_PID: Express
+      SQLSERVER_HOST: ${SQLSERVER_HOST}
+      SQLSERVER_USER: ${SQLSERVER_USER}
+      SQLSERVER_PASSWORD: ${SQLSERVER_PASSWORD}
+      SQLSERVER_DATABASE: ${SQLSERVER_DATABASE}
+      SQLSERVER_PORT:  ${SQLSERVER_PORT}
     ports:
-      - "1433:1433"
+      - "${SQLSERVER_PORT}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
       - sqli-network
 
-  # Oracle Database
   oracle:
     image: gvenzl/oracle-free:23-full
     platform: linux/arm64
     environment:
-      ORACLE_PASSWORD: password
+      ORACLE_USER: ${ORACLE_USER}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      ORACLE_SERVICE: ${ORACLE_SERVICE}
+      ORACLE_HOST: ${ORACLE_HOST}
+      ORACLE_PORT: ${ORACLE_PORT}
     ports:
-      - "1521:1521"
+      - "${ORACLE_PORT}:1521"
     volumes:
-      - oracle_data:/opt/oracle/oradata
+      - ./oracle_setup.sql:/container-entrypoint-initdb.d/init.sql
     networks:
       - sqli-network
 
@@ -81,4 +112,4 @@ volumes:
 
 networks:
   sqli-network:
-    driver: bridge 
+    driver: bridge
