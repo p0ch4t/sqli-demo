@@ -5,25 +5,13 @@ import sqlite3
 import os
 from dotenv import load_dotenv
 import logging
-
-try:
-    import pyodbc
-    SQLSERVER_AVAILABLE = True
-except ImportError:
-    SQLSERVER_AVAILABLE = False
-    print("⚠️  pyodbc no disponible. SQL Server no estará disponible.")
-try:
-    import oracledb
-    ORACLE_AVAILABLE = True
-except ImportError:
-    ORACLE_AVAILABLE = False
-    print("⚠️  cx_Oracle no disponible. Oracle no estará disponible.")
+import pyodbc
+import oracledb
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -62,9 +50,6 @@ DB_CONFIGS = {
 }
 
 def initialize_sqlserver_db():
-    if not SQLSERVER_AVAILABLE:
-        logger.warning("pyodbc no disponible. Saltando inicialización de SQL Server.")
-        return
     try:
         logger.info("Conectando a la base master para inicializar vulnerable_db...")
         # Conexión a master para crear la base si no existe
@@ -182,8 +167,6 @@ def get_postgresql_connection():
         return None
 
 def get_sqlserver_connection():
-    if not SQLSERVER_AVAILABLE:
-        return None
     try:
         conn_str_db = (
             f"DRIVER={{ODBC Driver 18 for SQL Server}};"
@@ -200,8 +183,6 @@ def get_sqlserver_connection():
         return None
 
 def get_oracle_connection():
-    if not ORACLE_AVAILABLE:
-        return None
     try:
         dsn = oracledb.makedsn(
             DB_CONFIGS['oracle']['host'],
