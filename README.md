@@ -1,3 +1,5 @@
+Para lanzar la aplicación, ejecutar: `docker-compose up -d`
+
 # 🎉 ¡Docker Compose Ejecutado Exitosamente!
 
 ## ✅ **Estado Actual - TODOS LOS CONTENEDORES FUNCIONANDO**
@@ -13,39 +15,10 @@
 ```bash
 docker-compose ps
 ```
-
-**Resultado:**
-```
-NAME                     IMAGE                             STATUS         PORTS
-sqli-demo-app-1          sqli-demo-app                    Up 4 seconds   0.0.0.0:5000->5000/tcp
-sqli-demo-mysql-1        mysql:8.0                        Up 4 seconds   0.0.0.0:3306->3306/tcp
-sqli-demo-postgresql-1   postgres:13                      Up 4 seconds   0.0.0.0:5432->5432/tcp
-sqli-demo-sqlserver-1    mcr.microsoft.com/mssql/server   Up 4 seconds   0.0.0.0:1433->1433/tcp
-sqli-demo-oracle-1       oracleinanutshell/oracle-xe-11g  Up 4 seconds   0.0.0.0:1521->1521/tcp
-```
-
-## 🔧 **Problemas Resueltos:**
-
-### ❌ **Problema Original:**
-- SQL Server no se ejecutaba debido a contraseña débil
-- Oracle tenía problemas de compatibilidad de arquitectura
-
-### ✅ **Solución Implementada:**
-- **SQL Server:** Cambiada contraseña de `password` a `Password123!` (cumple requisitos de complejidad)
-- **Oracle:** Funciona con emulación de arquitectura (AMD64 en ARM64)
-
-## 🚀 **Cómo Acceder**
-
 ### **Aplicación Web:**
 - **URL:** http://localhost:5000
 - **API:** http://localhost:5000/api/query
 - **Ejemplos:** http://localhost:5000/demo
-
-### **Bases de Datos:**
-- **MySQL:** localhost:3306 (root/password)
-- **PostgreSQL:** localhost:5432 (postgres/password)
-- **SQL Server:** localhost:1433 (sa/Password123!)
-- **Oracle:** localhost:1521 (system/password)
 
 ## 🔥 **Ejemplos de SQL Injection Funcionales**
 
@@ -136,24 +109,10 @@ docker exec -it sqli-demo-mysql-1 mysql -u root -ppassword vulnerable_db
 docker exec -it sqli-demo-postgresql-1 psql -U postgres -d vulnerable_db
 
 # SQL Server
-docker exec -it sqli-demo-sqlserver-1 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123!
+docker exec -it sqli-demo-sqlserver-1 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ClaveSegura2025!
 
 # Oracle
-docker exec -it sqli-demo-oracle-1 sqlplus system/password@localhost:1521/XE
-```
-
-## 📁 **Estructura del Proyecto**
-
-```
-sqli-demo/
-├── docker-compose.yml    # ✅ Configuración Docker
-├── Dockerfile           # ✅ Dockerfile para la app
-├── app.py              # ✅ Aplicación Flask
-├── requirements.txt     # ✅ Dependencias Python
-├── database_setup.sql  # ✅ Scripts SQL
-├── templates/          # ✅ Templates HTML
-├── static/            # ✅ Archivos estáticos
-└── README.md          # ✅ Documentación
+docker exec -it sqli-demo-oracle-1 sqlplus system/password@localhost:1521/FREEPDB1
 ```
 
 ## 🎯 **Características Implementadas**
@@ -163,12 +122,6 @@ sqli-demo/
 - API REST funcional
 - Página de ejemplos educativos
 - Manejo de errores elegante
-
-### ✅ **Bases de Datos:**
-- **MySQL 8.0** con datos de ejemplo
-- **PostgreSQL 13** con datos de ejemplo
-- **SQL Server 2019** con datos de ejemplo (✅ CORREGIDO)
-- **Oracle XE 11g** con datos de ejemplo
 
 ### ✅ **Vulnerabilidades Educativas:**
 - SQL Injection por concatenación directa
