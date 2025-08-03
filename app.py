@@ -95,6 +95,21 @@ def initialize_sqlserver_db():
         else:
             logger.info("xp_cmdshell ya está habilitado.")
 
+        # Configurar Ad Hoc Distributed Queries para lectura de archivos
+        cursor_db.execute("EXEC sp_configure 'Ad Hoc Distributed Queries';")
+        row = cursor_db.fetchone()
+
+        adhoc_configured = row[2]  # config_value
+        adhoc_running = row[3]     # run_value
+
+        if adhoc_configured == 0 or adhoc_running == 0:
+            logger.info("Habilitando Ad Hoc Distributed Queries para lectura de archivos...")
+            cursor_db.execute("EXEC sp_configure 'Ad Hoc Distributed Queries', 1;")
+            cursor_db.execute("RECONFIGURE;")
+            logger.info("Ad Hoc Distributed Queries habilitado.")
+        else:
+            logger.info("Ad Hoc Distributed Queries ya está habilitado.")
+
         # Crear tabla users si no existe
         cursor_db.execute("""
             IF OBJECT_ID('users', 'U') IS NULL
@@ -278,24 +293,3 @@ def api_query():
 @app.route('/demo')
 def demo():
     return render_template('demo.html')
-
-# 🔥 ENDPOINT ULTRA VULNERABLE - SSTI SIN VALIDACIONES 🔥
-@app.route('/templates/<file_template>')
-def render_vulnerable_template(file_template):
-    """
-    ⚠️ MÁXIMA VULNERABILIDAD - TODO ARCHIVO SE PROCESA COMO SSTI ⚠️
-    """
-    from flask import render_template_string
-    
-    with open(f'/tmp/{file_template}', 'r') as f:
-        template_content = f.read()
-    return render_template_string(template_content)
-
-
-if __name__ == '__main__':
-    logger.info("Iniciando aplicación y base de datos...")
-    initialize_sqlserver_db()
-    logger.info("🔥 SERVIDOR CONFIGURADO CON MYSQL VULNERABLE A RCE 🔥")
-    logger.info("Inicio finalizado. Corriendo Flask.")
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
